@@ -1,9 +1,10 @@
 import './App.css';
 import { Routes, Route } from 'react-router-dom'
-import TestPage from './components/TestPage'
 import MainPage from './components/MainPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Catalog from './components/Catalog';
+import Page404 from './components/Page404';
 
 
 function App() {
@@ -11,12 +12,13 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route path='/test' element={<TestPage />} />
+        <Route path='/catalog' element={<Catalog />} />
         <Route path='/' element={<MainPage />} />
+        <Route path='*' element={<Page404 />} />
       </Routes>
       <Footer />  
     </>
   );
 }
-// реализовать route /catalog /about /contacts
+
 export default App;
