@@ -52,10 +52,10 @@ export default function Header() {
               <div>
                 <div className='header-controls-pics'>
                   <div data-id='search-expander' className='header-controls-pic header-controls-search' onClick={toggleFormVisibility}></div>
-                  <div className="header-controls-pic header-controls-cart">
+                  <Link to='/cart' className="header-controls-pic header-controls-cart">
                     <div className="header-controls-cart-full">10</div>
                     <div className="header-controls-cart-menu"></div>
-                  </div>
+                  </Link>
                 </div>
                 <form data-id='search-form' className={isFormVisible ? 'header-controls-search-form form-inline' : 'header-controls-search-form form-inline invisible'}>
                   <input className='form-control' placeholder='Поиск' ref={searchInputRef}/>

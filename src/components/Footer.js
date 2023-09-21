@@ -39,7 +39,7 @@ export default function Footer() {
             <h5>Контакты:</h5>
             <a className='footer-contacts-phone' href='tel:+7-922-929-67-99'>+7 922 929 67 99</a>
             <span className='footer-contacts-working-hours'>Ежедневно: с 09-00 до 21-00</span>
-            <a className='footer-contacts-email' href='mailto:office@bosanoga.ru'>office@bosanoga.ru</a>
+            <a className='footer-contacts-email' href='mailto:nikitagudin.ads@gmail.com'>nikitagudin.ads@gmail.com</a>
             <div className='footer-social-links'>
               <div className='footer-social-link footer-social-link-twitter'></div>
               <div className='footer-social-link footer-social-link-vk'></div>

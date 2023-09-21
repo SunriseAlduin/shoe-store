@@ -5,6 +5,9 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Catalog from './components/Catalog';
 import Page404 from './components/Page404';
+import About from './components/About';
+import Cart from './components/Cart';
+import Contacts from './components/Contacts';
 
 
 function App() {
@@ -12,6 +15,9 @@ function App() {
     <>
       <Header />
       <Routes>
+        <Route path='/cart' element={<Cart />} />
+        <Route path='/contacts' element={<Contacts />} />
+        <Route path='/about' element={<About />} />
         <Route path='/catalog' element={<Catalog />} />
         <Route path='/' element={<MainPage />} />
         <Route path='*' element={<Page404 />} />
