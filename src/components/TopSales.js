@@ -1,56 +1,77 @@
-import React from 'react'
-import myer from '../img/products/sandals_myer.jpg'
-import keyra from '../img/products/sandals_keira.jpg'
-import supers from '../img/products/superhero_sneakers.jpg'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 export default function TopSales() {
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await axios.get('http://localhost:7070/api/top-sales');
+        if(response.data.length === 0) {
+          setLoading(false);
+          setProducts(null);
+        } else {
+          console.log(response)
+          setProducts(response.data);
+          setLoading(false);
+        };
+      } catch(error) {
+        setError(error);
+        setLoading(false);
+      };
+    }
+
+    fetchData();
+  }, []);
+
+  if(loading) {
+    return (
+      <div className='preloader'>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    );
+  };
+
+  if(error) {
+    return (
+      <p>Error: {error.message}</p>
+    );
+  };
+
+  if(products === null) {
+    return null;
+  }
+
   return (
-    // PRELOADER <section className='top-sales'>
-    //   <h2 className='text-center'>Хиты продаж</h2>
-    //   <div className='preloader'>
-    //     <span></span>
-    //     <span></span>
-    //     <span></span>
-    //     <span></span>
-    //   </div>
-    // </section>
+
+
 
     <section className="top-sales">
     <h2 className="text-center">Хиты продаж</h2>
     <div className="row">
-      <div className="col-4">
-        <div className="card">
-          <img src={myer}
-            className="card-img-top img-fluid" alt="Босоножки 'MYER'" />
-          <div className="card-body">
-            <p className="card-text">Босоножки 'MYER'</p>
-            <p className="card-text">34 000 руб.</p>
-            <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
+      {products.map((product) => {
+        return (
+          <div className='col-4'>
+            <div className='card'>
+              <img src={product.images[0]}
+                className='card-img-top img-fluid' alt={product.title} />
+              <div className='card-body'>
+                <p className='card-text'>{product.title}</p>
+                <p className='card-text'>{product.price + ' руб.'}</p>
+                <Link to={`/products/${product.id}`} className="btn btn-outline-primary">Заказать</Link>
+              </div>  
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="col-4">
-        <div className="card">
-          <img src={keyra}
-            className="card-img-top img-fluid" alt="Босоножки 'Keira'" />
-          <div className="card-body">
-            <p className="card-text">Босоножки 'Keira'</p>
-            <p className="card-text">7 600 руб.</p>
-            <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-          </div>
-        </div>
-      </div>
-      <div className="col-4">
-        <div className="card">
-          <img src={supers}
-            className="card-img-top img-fluid" alt="Супергеройские кеды" />
-          <div className="card-body">
-            <p className="card-text">Супергеройские кеды</p>
-            <p className="card-text">1 400 руб.</p>
-            <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   </section>
   )

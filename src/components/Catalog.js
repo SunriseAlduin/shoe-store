@@ -26,9 +26,10 @@ export default function Catalog() {
           {location.pathname === '/catalog' && <Banner />}  
           <section className="catalog">
             <h2 className="text-center">Каталог</h2>
-            <form className="catalog-search-form form-inline">
-              <input className="form-control" placeholder="Поиск" />
-            </form>
+            {location.pathname === '/catalog' && <form className="catalog-search-form form-inline">
+                                                   <input className="form-control" placeholder="Поиск" />
+                                                  </form>
+            }
             <ul className="catalog-categories nav justify-content-center">
               <li className="nav-item">
                 <a className="nav-link active" href="#">Все</a>
