@@ -8,6 +8,7 @@ import Page404 from './components/Page404';
 import About from './components/About';
 import Cart from './components/Cart';
 import Contacts from './components/Contacts';
+import Product from './components/Product';
 
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
     <>
       <Header />
       <Routes>
-        {/* <Route path='/product:id' element={}/> */}
+        <Route path='/products/:id' element={<Product />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/contacts' element={<Contacts />} />
         <Route path='/about' element={<About />} />

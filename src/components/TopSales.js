@@ -16,7 +16,6 @@ export default function TopSales() {
           setLoading(false);
           setProducts(null);
         } else {
-          console.log(response)
           setProducts(response.data);
           setLoading(false);
         };
@@ -24,7 +23,7 @@ export default function TopSales() {
         setError(error);
         setLoading(false);
       };
-    }
+    };
 
     fetchData();
   }, []);
@@ -59,7 +58,7 @@ export default function TopSales() {
     <div className="row">
       {products.map((product) => {
         return (
-          <div className='col-4'>
+          <div className='col-4' key={product.id}>
             <div className='card'>
               <img src={product.images[0]}
                 className='card-img-top img-fluid' alt={product.title} />

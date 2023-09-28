@@ -1,16 +1,113 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'   
-import myer1 from '../img/products/sandals_myer.jpg'
-import keyra1 from '../img/products/sandals_keira.jpg'
-import super1 from '../img/products/superhero_sneakers.jpg'
 import Banner from './Banner'
+import axios from 'axios'
 
 export default function Catalog() {
-  const location = useLocation();  
-  //Ссылки на под каталоги и товары
+  const location = useLocation();
+
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [offset, setOffset] = useState(6);
+  const [moreButtonVisible, setMoreButtonVisible] = useState(true);
+  const [loadedProducts, setLoadedProducts] = useState([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const [errorCategories, setErrorCategories] = useState(null);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [errorProducts, setErrorProducts] = useState(null);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await axios.get('http://localhost:7070/api/categories');
+        if(response.data.length === 0){
+          setCategories([]);
+        } else {
+          setCategories(response.data);
+        }
+      } catch(error) {
+        setErrorCategories(error);
+      };
+    };
+    
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      if(activeCategory === 0){
+        try{
+          const response = await axios.get('http://localhost:7070/api/items');
+          setProducts(response.data);
+          console.log(response.data);
+        } catch(error){
+          setErrorProducts(error);
+          setLoadingProducts(false);
+        };
+      } else{
+        try{
+          const response = await axios.get(`http://localhost:7070/api/items?categoryId=${activeCategory}`);
+          setProducts(response.data);
+
+          if(response.data.length < 6){
+            setMoreButtonVisible(false)
+          } else{
+            setMoreButtonVisible(true)
+          }
+          console.log(response.data);
+        } catch(error){
+          setErrorProducts(error);
+          setLoadingProducts(false);
+        };
+      };
+    };
+
+    fetchProducts();
+  }, [activeCategory]);
+  
+  const categoryClickHandler = (categoryId) => {
+    setActiveCategory(categoryId)
+    setOffset(6);
+    if(!(products.length < 6)){
+      setMoreButtonVisible(true)
+    }
+  };
+
+  const moreButtonClickHandler = async () => {
+    let url;
+    if(activeCategory === 0){
+      url = `http://localhost:7070/api/items?offset=${offset}`;
+    } else{
+      url = `http://localhost:7070/api/items?categoryId=${activeCategory}&offset=${offset}`;
+    };
+
+    try{
+      const response = await axios.get(url);
+      if(response.data.length < 6){
+        setMoreButtonVisible(false);
+        console.log("меньше 6 пришло")
+        // setOffset((prevOffset) => prevOffset + 6)
+        // setProducts((prevProducts) => [...prevProducts, ...response.data])
+      // } else{
+      //   setOffset((prevOffset) => prevOffset + 6)
+      //   setProducts((prevProducts) => [...prevProducts, ...response.data])
+      // 
+      };
+
+      setOffset((prevOffset) => prevOffset + 6)
+      setProducts((prevProducts) => [...prevProducts, ...response.data])      
+
+    } catch(error){
+      console.log(error)
+    };  
+    
+  };
+
   return (
   <>
-      {/* PRELOADER <section className='catalog'>
+      {/* PRELOADER для категорий поищи другой лодер, может горизонтальный какой-нибудь <section className='catalog'>
       <h2 className='text-center'>Каталог</h2>
       <div className='preloader'>
         <span></span>
@@ -30,94 +127,50 @@ export default function Catalog() {
                                                    <input className="form-control" placeholder="Поиск" />
                                                   </form>
             }
-            <ul className="catalog-categories nav justify-content-center">
-              <li className="nav-item">
-                <a className="nav-link active" href="#">Все</a>
+
+            <ul className='catalog-categories nav justify-content-center'>
+              <li className='nav-item' key={0}>
+                <a href='#' className={`nav-link ${activeCategory === 0 ? 'active' : ''}`} onClick={(e) => {
+                  e.preventDefault();
+                  categoryClickHandler(0);
+                }}>
+                Все</a>
               </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Женская обувь</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Мужская обувь</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Обувь унисекс</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Детская обувь</a>
-              </li>
+              {categories.map((category) => {
+               return(
+                 <li className='nav-item' key={category.id}>
+                   <a href='#' className={`nav-link ${activeCategory === category.id ? 'active' : ''}`} onClick={(e) => {
+                      e.preventDefault();
+                      categoryClickHandler(category.id)
+                   }}>
+                   {category.title}</a>   
+                 </li> 
+               );
+              })}
             </ul>
             <div className="row">
-              <div className="col-4">
-                <div className="card catalog-item-card">
-                  <img src={myer1}
-                    className="card-img-top img-fluid" alt="Босоножки 'MYER'" />
-                  <div className="card-body">
-                    <p className="card-text">Босоножки 'MYER'</p>
-                    <p className="card-text">34 000 руб.</p>
-                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
+              {products.map((product) => {
+                return(
+                  <div className='col-4' key={product.id}>
+                    <div className="card catalog-item-card">
+                      <img src={product.images[0]}
+                      className="card-img-top img-fluid" alt={product.title} />
+                      <div className="card-body">
+                        <p className="card-text">{product.title}</p>
+                        <p className="card-text">{product.price}</p>
+                        <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="card catalog-item-card">
-                  <img src={keyra1}
-                    className="card-img-top img-fluid" alt="Босоножки 'Keira'" />
-                  <div className="card-body">
-                    <p className="card-text">Босоножки 'Keira'</p>
-                    <p className="card-text">7 600 руб.</p>
-                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-                  </div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="card catalog-item-card">
-                  <img src={super1}
-                    className="card-img-top img-fluid" alt="Супергеройские кеды" />
-                  <div className="card-body">
-                    <p className="card-text">Супергеройские кеды</p>
-                    <p className="card-text">1 400 руб.</p>
-                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-                  </div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="card catalog-item-card">
-                  <img src={myer1}
-                    className="card-img-top img-fluid" alt="Босоножки 'MYER'" />
-                  <div className="card-body">
-                    <p className="card-text">Босоножки 'MYER'</p>
-                    <p className="card-text">34 000 руб.</p>
-                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-                  </div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="card catalog-item-card">
-                  <img src={keyra1}
-                    className="card-img-top img-fluid" alt="Босоножки 'Keira'" />
-                  <div className="card-body">
-                    <p className="card-text">Босоножки 'Keira'</p>
-                    <p className="card-text">7 600 руб.</p>
-                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-                  </div>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="card catalog-item-card">
-                  <img src={super1}
-                    className="card-img-top img-fluid" alt="Супергеройские кеды" />
-                  <div className="card-body">
-                    <p className="card-text">Супергеройские кеды</p>
-                    <p className="card-text">1 400 руб.</p>
-                    <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
-            <div className="text-center">
-              <button className="btn btn-outline-primary">Загрузить ещё</button>
-            </div>
+            {moreButtonVisible ? (<div className="text-center">
+                                     <button className="btn btn-outline-primary" onClick={moreButtonClickHandler}>Загрузить ещё</button>
+                                   </div>)
+                               : (<div className='text-center'>
+                                  <p>Ой, больше ничего нет &#128517; </p>
+                                 </div>)    }
           </section>
         </div>
       </div>
