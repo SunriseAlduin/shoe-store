@@ -11,6 +11,8 @@ export default function Catalog() {
   const [activeCategory, setActiveCategory] = useState(0);
   const [offset, setOffset] = useState(6);
   const [moreButtonVisible, setMoreButtonVisible] = useState(true);
+  const [formData, setFormData] = useState('');
+  const [actualSearch, setActualSearch] = useState('');
   const [loadedProducts, setLoadedProducts] = useState([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -37,31 +39,73 @@ export default function Catalog() {
 
   useEffect(() => {
     async function fetchProducts() {
-      if(activeCategory === 0){
-        try{
-          const response = await axios.get('http://localhost:7070/api/items');
-          setProducts(response.data);
-          console.log(response.data);
-        } catch(error){
-          setErrorProducts(error);
-          setLoadingProducts(false);
-        };
-      } else{
-        try{
-          const response = await axios.get(`http://localhost:7070/api/items?categoryId=${activeCategory}`);
-          setProducts(response.data);
+      let url = `http://localhost:7070/api/items`;
+      // const response = await axios.get(`http://localhost:7070/api/items?categoryId=${categoryId}&offset=${offset}&q=${actualSearch}`)
 
-          if(response.data.length < 6){
-            setMoreButtonVisible(false)
-          } else{
-            setMoreButtonVisible(true)
-          }
-          console.log(response.data);
-        } catch(error){
-          setErrorProducts(error);
-          setLoadingProducts(false);
+      if(actualSearch === ''){
+        if(activeCategory === 0){
+          try{
+            const response = await axios.get('http://localhost:7070/api/items');
+            setProducts(response.data);
+
+            if(response.data.length < 6){
+              setMoreButtonVisible(false)
+            } else{
+              setMoreButtonVisible(true)
+            }
+          } catch(error){
+            setErrorProducts(error);
+            setLoadingProducts(false);
+          };
+        } else{
+          try{
+            const response = await axios.get(`http://localhost:7070/api/items?categoryId=${activeCategory}`);
+            setProducts(response.data);
+  
+            if(response.data.length < 6){
+              setMoreButtonVisible(false)
+            } else{
+              setMoreButtonVisible(true)
+            }
+            console.log(response.data);
+          } catch(error){
+            setErrorProducts(error);
+            setLoadingProducts(false);
+          };
         };
-      };
+      } else {
+        if(activeCategory === 0){
+          try{
+            const response = await axios.get(`http://localhost:7070/api/items?q=${actualSearch}`);
+            setProducts(response.data);
+
+            if(response.data.length < 6){
+              setMoreButtonVisible(false)
+            } else{
+              setMoreButtonVisible(true)
+            }
+          } catch(error){
+            setErrorProducts(error);
+            setLoadingProducts(false);
+          }
+        } else{
+            try{
+              const response = await axios.get(`http://localhost:7070/api/items?q=${actualSearch}&categoryId=${activeCategory}`);
+              setProducts(response.data);
+  
+              if(response.data.length < 6){
+                setMoreButtonVisible(false)
+              } else{
+                setMoreButtonVisible(true)
+              }
+              console.log(response.data);
+            } catch(error){
+              setErrorProducts(error);
+              setLoadingProducts(false);
+            };
+          };
+        }
+
     };
 
     fetchProducts();
@@ -78,22 +122,17 @@ export default function Catalog() {
   const moreButtonClickHandler = async () => {
     let url;
     if(activeCategory === 0){
-      url = `http://localhost:7070/api/items?offset=${offset}`;
+      actualSearch === '' ? url = `http://localhost:7070/api/items?offset=${offset}`
+                            : url = `http://localhost:7070/api/items?offset=${offset}&q=${actualSearch}`
     } else{
-      url = `http://localhost:7070/api/items?categoryId=${activeCategory}&offset=${offset}`;
+      actualSearch === '' ? url = `http://localhost:7070/api/items?categoryId=${activeCategory}&offset=${offset}`
+                            : url = `http://localhost:7070/api/items?categoryId=${activeCategory}&offset=${offset}&q=${actualSearch}`
     };
 
     try{
       const response = await axios.get(url);
       if(response.data.length < 6){
         setMoreButtonVisible(false);
-        console.log("меньше 6 пришло")
-        // setOffset((prevOffset) => prevOffset + 6)
-        // setProducts((prevProducts) => [...prevProducts, ...response.data])
-      // } else{
-      //   setOffset((prevOffset) => prevOffset + 6)
-      //   setProducts((prevProducts) => [...prevProducts, ...response.data])
-      // 
       };
 
       setOffset((prevOffset) => prevOffset + 6)
@@ -103,6 +142,30 @@ export default function Catalog() {
       console.log(error)
     };  
     
+  };
+  
+
+
+  const formSubmitHandler = async (formData) => {
+    const search = formData;
+    try{
+      const response = await axios.get(`http://localhost:7070/api/items?q=${formData}&categoryId=${activeCategory}`);
+      setActualSearch(search);
+      if(response.data.length < 6){
+        setMoreButtonVisible(false);
+        setProducts((prevProducts) => [...prevProducts, ...response.data])
+      } else{
+        setMoreButtonVisible(true);
+      }
+      setProducts(response.data);
+      console.log(response)
+    } catch(error){
+      console.log(error);
+    }
+  };
+  
+  const inputChangeHandler = (e) => {
+    setFormData(e.target.value);
   };
 
   return (
@@ -123,8 +186,12 @@ export default function Catalog() {
           {location.pathname === '/catalog' && <Banner />}  
           <section className="catalog">
             <h2 className="text-center">Каталог</h2>
-            {location.pathname === '/catalog' && <form className="catalog-search-form form-inline">
-                                                   <input className="form-control" placeholder="Поиск" />
+            {location.pathname === '/catalog' && <form className="catalog-search-form form-inline"
+                                                       onSubmit={(e) => {
+                                                        e.preventDefault();
+                                                        formSubmitHandler(formData);
+                                                       }}>
+                                                   <input className="form-control" placeholder="Поиск" onChange={inputChangeHandler} value={formData}/>
                                                   </form>
             }
 
