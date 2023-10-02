@@ -1,25 +1,39 @@
 import React, { useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import headerLogo from '../img/header-logo.png'
 
 export default function Header() {
 
-  const [isFormVisible, setIsFormvisible] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(false);
   const searchInputRef = useRef(null);
+  const submitButtonRef = useRef(null);
   const location = useLocation();
+  const [searchText, setSearchText] = useState('');
+  const navigate = useNavigate();
+  
   
   const toggleFormVisibility = () => {
-    setIsFormvisible((prevIsFormVisible) => !prevIsFormVisible);
-    if(searchInputRef.current){
-      searchInputRef.current.focus();
-    }
+
+    if(isFormVisible === false){
+      setIsFormVisible(true);
+    };
+
+    if(isFormVisible && searchText){
+      submitButtonRef.current.click();
+    };
+
   };
 
   const isActive = (path) => {
     return location.pathname === path ? 'active' : '';
   };
 
-
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearchText('');
+    setIsFormVisible(false);
+    navigate(`/catalog?search=${encodeURIComponent(searchText)}`);
+  };
 
   /* Пример реализации добавления активного класса пункту меню
   className={`navbar-brand ${testMatch ? 'active' : ''}`
@@ -57,8 +71,9 @@ export default function Header() {
                     <div className="header-controls-cart-menu"></div>
                   </Link>
                 </div>
-                <form data-id='search-form' className={isFormVisible ? 'header-controls-search-form form-inline' : 'header-controls-search-form form-inline invisible'}>
-                  <input className='form-control' placeholder='Поиск' ref={searchInputRef}/>
+                <form data-id='search-form' className={isFormVisible ? 'header-controls-search-form form-inline' : 'header-controls-search-form form-inline invisible'} onSubmit={(e) => handleSearchSubmit(e)}>
+                  <input className='form-control' placeholder='Поиск' ref={searchInputRef} value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                  <button type='submit' style={{ display: 'none' }} ref={submitButtonRef}></button>
                 </form>
               </div>
             </div>

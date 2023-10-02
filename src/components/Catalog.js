@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'   
+import React, { useEffect, useRef, useState } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'   
 import Banner from './Banner'
 import axios from 'axios'
 
@@ -13,12 +13,43 @@ export default function Catalog() {
   const [moreButtonVisible, setMoreButtonVisible] = useState(true);
   const [formData, setFormData] = useState('');
   const [actualSearch, setActualSearch] = useState('');
+
+  
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loadedProducts, setLoadedProducts] = useState([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const [errorCategories, setErrorCategories] = useState(null);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [errorProducts, setErrorProducts] = useState(null);
+
+
+
+  useEffect(() => {
+    async function fetchParams() {
+      const searchQuery = searchParams.get('search') || '';
+      if(searchQuery){
+        setFormData(searchQuery);
+        setActualSearch(searchQuery)
+        setActiveCategory(0)
+        try{
+          const response = await axios.get(`http://localhost:7070/api/items?q=${searchQuery}`);
+          console.log(response.data)
+          setProducts(response.data);
+
+          if(response.data.length < 6){
+            setMoreButtonVisible(false)
+          } else{
+            setMoreButtonVisible(true)
+          };
+        } catch(error){
+          console.log('error')
+        };
+      };
+    };
+
+    fetchParams();
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -34,11 +65,37 @@ export default function Catalog() {
       };
     };
     
-    fetchCategories();
+    fetchCategories(); 
+    
+    async function fetchParams() {
+      const searchQuery = searchParams.get('search') || '';
+      if(searchQuery){
+        setFormData(searchQuery);
+        setActualSearch(searchQuery)
+        setActiveCategory(0)
+        try{
+          const response = await axios.get(`http://localhost:7070/api/items?q=${searchQuery}`);
+          console.log(response.data)
+          setProducts(response.data);
+
+          if(response.data.length < 6){
+            setMoreButtonVisible(false)
+          } else{
+            setMoreButtonVisible(true)
+          };
+        } catch(error){
+          console.log('error')
+        };
+      };
+    };
+
+    fetchParams();
   }, []);
 
   useEffect(() => {
+
     async function fetchProducts() {
+
       let url = `http://localhost:7070/api/items`;
       // const response = await axios.get(`http://localhost:7070/api/items?categoryId=${categoryId}&offset=${offset}&q=${actualSearch}`)
 
@@ -148,6 +205,8 @@ export default function Catalog() {
 
   const formSubmitHandler = async (formData) => {
     const search = formData;
+
+
     try{
       const response = await axios.get(`http://localhost:7070/api/items?q=${formData}&categoryId=${activeCategory}`);
       setActualSearch(search);
