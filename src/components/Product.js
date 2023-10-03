@@ -1,10 +1,145 @@
-import React from 'react'
-import { useParams } from 'react-router-dom'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 
 export default function Product() {
   const {id} = useParams();
-  console.log(id)
+  const [product, setProduct] = useState(null);
+  const [activeSize, setActiveSize] = useState(null);
+  const [amount, setAmount] = useState(1);
+  const [loadingProduct, setLoadingProduct] = useState(true);
+  const [errorProduct, setErrorProduct] = useState(null);
+
+  useEffect(() => {
+    async function fetchProduct() {
+      try{
+        const response = await axios.get(`http://localhost:7070/api/items/${id}`);
+        console.log(response.data);
+        if(response.data.length === 0){
+          setLoadingProduct(false);
+          setProduct(null);
+        } else{
+          setProduct(response.data);
+          setLoadingProduct(false);
+        };
+      } catch(error){
+        setErrorProduct(error);
+        setLoadingProduct(false);
+      };
+    };
+
+    fetchProduct();
+  }, [id])
+
+  if(loadingProduct) {
+    return (
+      <div className='preloader'>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    );
+  };
+
+  if(errorProduct) {
+    return (
+      <p>Error: {errorProduct.message}</p>
+    );
+  };
+
+  if(product === null) {
+    return null;
+  }
+
+  const sizeClickHandler = (e) => { 
+    setActiveSize(e.target.innerText);
+
+    if(activeSize === e.target.innerText){
+      setActiveSize(null);
+    }
+  }
+
+  const decrementClickHandler = () => {
+    if(amount > 1){
+      setAmount(prevAmount => prevAmount - 1);
+    };
+  };
+
+  const incrementClickHandler = () => {
+    if(amount < 10){
+      setAmount(prevAmount => prevAmount + 1);
+    };
+  };
+
   return (
-    <div>{id}</div>
+    <main className='container'>
+    <div className='row'>
+    <div className='col'>
+    <section className='catalog-item'>
+      <h2 className='text-center'>{product.title}</h2>
+      <div className='row'>
+        <div className='col-5'>
+          <img src={product.images[0]}
+               className='img-fluid'
+               alt={product.title} />
+        </div>
+        <div className='col-7'>
+          <table className='table table-bordered'>
+            <tbody>
+              <tr>
+                <td>Артикул</td>
+                <td>{product.sku || ''}</td>
+              </tr>
+              <tr>
+                <td>Производитель</td>
+                <td>{product.manufacturer || ''}</td>
+              </tr>
+              <tr>
+                <td>Цвет</td>
+                <td>{product.color || ''}</td>
+              </tr>
+              <tr>
+                <td>Материалы</td>
+                <td>{product.material || ''}</td>
+              </tr>
+              <tr>
+                <td>Сезон</td>
+                <td>{product.season || ''}</td>
+              </tr>
+              <tr>
+                <td>Повод</td>
+                <td>{product.reason || ''}</td>
+              </tr>
+            </tbody>
+          </table>
+          {/* selected класс для активного размера */}
+          <div className='text-center'>
+            <p>Выберите размер: {product.sizes.map((size) => {
+              if(size.available){
+                return (<span className={`catalog-item-size ${size.size === activeSize ? `selected` : ``}`} onClick={(e) => sizeClickHandler(e)}>{size.size}</span>)
+              };
+            })}
+            </p>
+
+            {(product.sizes.length !== 0 && activeSize) ?
+            <>            
+            <p>Количество: <span class="btn-group btn-group-sm pl-2">
+              <button class="btn btn-secondary" onClick={decrementClickHandler}>-</button>
+              <span class="btn btn-outline-primary">{amount}</span>
+              <button class="btn btn-secondary" onClick={incrementClickHandler}>+</button>
+              </span>
+            </p>
+            <Link to={`/cart`} className='btn btn-danger btn-block btn-lg'>В корзину</Link> 
+            </> 
+          : null}
+          </div>
+
+        </div>
+      </div>
+    </section>
+    </div>
+    </div>
+    </main>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'   
+import { Link, useLocation, useSearchParams } from 'react-router-dom'   
 import Banner from './Banner'
 import axios from 'axios'
 
@@ -284,7 +284,7 @@ export default function Catalog() {
                       <div className="card-body">
                         <p className="card-text">{product.title}</p>
                         <p className="card-text">{product.price}</p>
-                        <a href="/products/1.html" className="btn btn-outline-primary">Заказать</a>
+                        <Link to={`/products/${product.id}`} className="btn btn-outline-primary">Заказать</Link>
                       </div>
                     </div>
                   </div>
