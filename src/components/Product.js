@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useAppContext } from './AppContext';
 
 export default function Product() {
   const {id} = useParams();
@@ -9,6 +10,7 @@ export default function Product() {
   const [amount, setAmount] = useState(1);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [errorProduct, setErrorProduct] = useState(null);
+  const { state, dispatch } = useAppContext();
 
   useEffect(() => {
     async function fetchProduct() {
@@ -31,6 +33,41 @@ export default function Product() {
     fetchProduct();
   }, [id])
 
+  const sizeClickHandler = (e) => { 
+    setActiveSize(e.target.innerText);
+
+    if(activeSize === e.target.innerText){
+      setActiveSize(null);
+    }
+  }
+
+  const decrementClickHandler = () => {
+    if(amount > 1){
+      setAmount(prevAmount => prevAmount - 1);
+    };
+  };
+
+  const incrementClickHandler = () => {
+    if(amount < 10){
+      setAmount(prevAmount => prevAmount + 1);
+    };
+  };
+
+  const addToCartClickHandler = () => {
+    console.log(product, activeSize, amount);
+
+    dispatch({
+      type: 'ADD_PRODUCT',
+      payload: { 
+        title: product.title,
+        size: activeSize,
+        amount: amount,
+        price: product.price,
+        total: amount * product.price,
+      }
+    });
+  };
+
   if(loadingProduct) {
     return (
       <div className='preloader'>
@@ -51,26 +88,6 @@ export default function Product() {
   if(product === null) {
     return null;
   }
-
-  const sizeClickHandler = (e) => { 
-    setActiveSize(e.target.innerText);
-
-    if(activeSize === e.target.innerText){
-      setActiveSize(null);
-    }
-  }
-
-  const decrementClickHandler = () => {
-    if(amount > 1){
-      setAmount(prevAmount => prevAmount - 1);
-    };
-  };
-
-  const incrementClickHandler = () => {
-    if(amount < 10){
-      setAmount(prevAmount => prevAmount + 1);
-    };
-  };
 
   return (
     <main className='container'>
@@ -113,24 +130,23 @@ export default function Product() {
               </tr>
             </tbody>
           </table>
-          {/* selected класс для активного размера */}
           <div className='text-center'>
             <p>Выберите размер: {product.sizes.map((size) => {
               if(size.available){
-                return (<span className={`catalog-item-size ${size.size === activeSize ? `selected` : ``}`} onClick={(e) => sizeClickHandler(e)}>{size.size}</span>)
+                return (<span className={`catalog-item-size ${size.size === activeSize ? `selected` : ``}`} onClick={(e) => sizeClickHandler(e)} key={size.size}>{size.size}</span>)
               };
             })}
             </p>
 
             {(product.sizes.length !== 0 && activeSize) ?
-            <>            
-            <p>Количество: <span class="btn-group btn-group-sm pl-2">
-              <button class="btn btn-secondary" onClick={decrementClickHandler}>-</button>
-              <span class="btn btn-outline-primary">{amount}</span>
-              <button class="btn btn-secondary" onClick={incrementClickHandler}>+</button>
-              </span>
-            </p>
-            <Link to={`/cart`} className='btn btn-danger btn-block btn-lg'>В корзину</Link> 
+            <>         
+              <p>Количество: <span className="btn-group btn-group-sm pl-2">
+                <button className="btn btn-secondary" onClick={decrementClickHandler}>-</button>
+                <span className="btn btn-outline-primary">{amount}</span>
+                <button className="btn btn-secondary" onClick={incrementClickHandler}>+</button>
+                </span>
+              </p>
+              <Link to={`/cart`} className='btn btn-danger btn-block btn-lg' onClick={() => addToCartClickHandler()}>В корзину</Link> 
             </> 
           : null}
           </div>
