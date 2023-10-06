@@ -64,6 +64,7 @@ export default function Product() {
         amount: amount,
         price: product.price,
         total: amount * product.price,
+        id: id,
       }
     });
   };

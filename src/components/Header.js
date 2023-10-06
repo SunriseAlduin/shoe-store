@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import headerLogo from '../img/header-logo.png'
+import { useAppContext } from './AppContext';
 
 export default function Header() {
 
@@ -10,6 +11,7 @@ export default function Header() {
   const location = useLocation();
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
+  const { state, dispatch } = useAppContext();
   
   
   const toggleFormVisibility = () => {
@@ -67,7 +69,7 @@ export default function Header() {
                 <div className='header-controls-pics'>
                   <div data-id='search-expander' className='header-controls-pic header-controls-search' onClick={toggleFormVisibility}></div>
                   <Link to='/cart' className="header-controls-pic header-controls-cart">
-                    <div className="header-controls-cart-full">10</div>
+                    <div className="header-controls-cart-full">{state.productsAmount}</div>
                     <div className="header-controls-cart-menu"></div>
                   </Link>
                 </div>

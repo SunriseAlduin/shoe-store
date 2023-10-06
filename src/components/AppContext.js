@@ -10,11 +10,19 @@ const AppContext = createContext();
 const appReducer = (state, action) => {
   switch(action.type) {
     case 'ADD_PRODUCT':
-      return {
+
+      const updatedState = {
         ...state,
         productsAmount: state.productsAmount + 1,
         products: [...state.products, action.payload]
       };
+
+      localStorage.setItem('cartState', JSON.stringify(updatedState));
+      return updatedState;
+
+    case 'LOAD_CART_DATA':
+      return action.payload;    
+
     default: return state;  
   }
 };

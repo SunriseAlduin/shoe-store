@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import banner from '../img/banner.jpg'
 import { useAppContext } from './AppContext'
+import { Link } from 'react-router-dom';
 
 //Исправить ссылки на страницы товаров
 
@@ -12,6 +13,16 @@ export default function Cart() {
     maxWidth: '30rem',
     margin: '0 auto',
   }
+
+  let totalPrice = 0;
+
+  const deleteButtonHandler = () => {
+    // вот это надо сделать и плюсом избежать появления дублей одного товара
+    // dispatch({
+    //   type: 'DELETE_PRODUCT',
+    //   payload: {}
+    // })
+  };
 
   return (
     <main className="container">
@@ -36,19 +47,30 @@ export default function Cart() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td scope="row">1</td>
-                  <td><a href="/products/1.html">Босоножки 'MYER'</a></td>
-                  <td>18 US</td>
-                  <td>1</td>
-                  <td>34 000 руб.</td>
-                  <td>34 000 руб.</td>
-                  <td><button className="btn btn-outline-danger btn-sm">Удалить</button></td>
-                </tr>
-                <tr>
-                  <td colSpan="5" className="text-right">Общая стоимость</td>
-                  <td>34 000 руб.</td>
-                </tr>
+
+                {state.products.map((item, index) => {
+
+                  totalPrice = totalPrice + item.total;
+                  return (
+                    // :)
+                    <tr key={index}>
+                      <td scope="row">{index + 1}</td>
+                      <td><Link to={`/products/${item.id}`}>{item.title}</Link></td>
+                      <td>{item.size}</td>
+                      <td>{item.amount}</td>
+                      <td>{item.price} руб.</td>
+                      <td>{item.total} руб.</td>
+                      <td><button className="btn btn-outline-danger btn-sm" onClick={deleteButtonHandler}>Удалить</button></td>
+                    </tr>
+                  );
+                })}
+
+                {totalPrice > 0 ?   <tr>
+                                      <td colSpan="5" className="text-right">Общая стоимость</td>
+                                      <td>{totalPrice} руб.</td>
+                                    </tr> 
+                                  : null}
+
               </tbody>
             </table>
           </section>
