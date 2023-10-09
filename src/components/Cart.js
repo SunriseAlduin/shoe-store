@@ -16,12 +16,19 @@ export default function Cart() {
 
   let totalPrice = 0;
 
-  const deleteButtonHandler = () => {
+  const deleteButtonHandler = (id) => {
     // вот это надо сделать и плюсом избежать появления дублей одного товара
     // dispatch({
     //   type: 'DELETE_PRODUCT',
     //   payload: {}
     // })
+
+    dispatch({
+      type: 'DELETE_PRODUCT',
+      payload: {
+        id: id,
+      },
+    });
   };
 
   return (
@@ -60,7 +67,7 @@ export default function Cart() {
                       <td>{item.amount}</td>
                       <td>{item.price} руб.</td>
                       <td>{item.total} руб.</td>
-                      <td><button className="btn btn-outline-danger btn-sm" onClick={deleteButtonHandler}>Удалить</button></td>
+                      <td><button className="btn btn-outline-danger btn-sm" onClick={() => deleteButtonHandler(item.id)}>Удалить</button></td>
                     </tr>
                   );
                 })}
