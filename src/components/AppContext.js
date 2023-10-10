@@ -66,6 +66,10 @@ const appReducer = (state, action) => {
 
       return updatedDeletedState;
 
+    case 'REFRESH_CART':
+      localStorage.setItem('cartState', JSON.stringify(initialState))
+      return initialState;  
+
     default: return state;  
   }
 };

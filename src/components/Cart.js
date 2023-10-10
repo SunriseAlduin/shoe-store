@@ -1,13 +1,72 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import banner from '../img/banner.jpg'
 import { useAppContext } from './AppContext'
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-//Исправить ссылки на страницы товаров
 
 export default function Cart() {
   const { state, dispatch } = useAppContext();
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [agreement, setAgreement] = useState(false);
 
+  const isFormValid = phone !== '' && address !== '' && agreement;
+
+  const handlePhoneChange = (e) => {
+    setPhone(e.target.value);
+  };
+
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
+
+  const handleAgreementChange = (e) => {
+    setAgreement(e.target.checked);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    async function postOrder() {
+      const url = 'http://localhost:7070/api/order';
+      const requestData = {
+        owner: {
+          phone,
+          address,
+        },
+        items: state.products.map((item) => {
+          return {
+            id: +item.id,
+            price: item.price,
+            count: item.amount,
+          };
+        }),
+      };
+
+      try{
+        const response = await axios.post(url, JSON.stringify(requestData), {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if(response.status > 199 && response.status < 300) {
+          dispatch({
+            type: 'REFRESH_CART'
+          });
+        }
+        console.log(response);
+      } catch(error){
+        console.log(error)
+      }
+    };
+
+    postOrder();
+    setPhone('');
+    setAddress('')
+    setAgreement(false);
+  };
 
   const style = {
     maxWidth: '30rem',
@@ -17,12 +76,6 @@ export default function Cart() {
   let totalPrice = 0;
 
   const deleteButtonHandler = (id) => {
-    // вот это надо сделать и плюсом избежать появления дублей одного товара
-    // dispatch({
-    //   type: 'DELETE_PRODUCT',
-    //   payload: {}
-    // })
-
     dispatch({
       type: 'DELETE_PRODUCT',
       payload: {
@@ -30,6 +83,7 @@ export default function Cart() {
       },
     });
   };
+
 
   return (
     <main className="container">
@@ -81,26 +135,42 @@ export default function Cart() {
               </tbody>
             </table>
           </section>
-          <section className="order">
+          {
+            state.products.length > 0 ? 
+            <section className="order">
             <h2 className="text-center">Оформить заказ</h2>
             <div className="card" style={style}>
-              <form className="card-body">
+              <form className="card-body" onSubmit={(e) => handleSubmit(e)}>
                 <div className="form-group">
                   <label htmlFor="phone">Телефон</label>
-                  <input className="form-control" id="phone" placeholder="Ваш телефон" />
+                  <input className="form-control" id="phone" 
+                                                  placeholder="Ваш телефон" 
+                                                  value={phone}
+                                                  onChange={(e) => handlePhoneChange(e)}
+                                                  required/>
                 </div>
                 <div className="form-group">
                   <label htmlFor="address">Адрес доставки</label>
-                  <input className="form-control" id="address" placeholder="Адрес доставки" />
+                  <input className="form-control" id="address" 
+                                                  placeholder="Адрес доставки" 
+                                                  value={address}
+                                                  onChange={(e) => handleAddressChange(e)}
+                                                  required />
                 </div>
                 <div className="form-group form-check">
-                  <input type="checkbox" className="form-check-input" id="agreement" />
+                  <input type="checkbox" className="form-check-input" id="agreement"           
+                                                                      checked={agreement}
+                                                                      onChange={(e) => handleAgreementChange(e)}
+                                                                      required />
                   <label className="form-check-label" htmlFor="agreement">Согласен с правилами доставки</label>
                 </div>
-                <button type="submit" className="btn btn-outline-secondary">Оформить</button>
+                <button type="submit" className="btn btn-outline-secondary" disabled={!isFormValid}>Оформить</button>
               </form>
             </div>
           </section>
+          : null
+          }
+          
         </div>
       </div>
     </main>
