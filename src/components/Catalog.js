@@ -274,11 +274,11 @@ export default function Catalog() {
                );
               })}
             </ul>
-            <div className="row">
-              {products.map((product) => {
+            <div className='row d-flex'>
+            {products.map((product) => {
                 return(
                   <div className='col-4' key={product.id}>
-                    <div className="card catalog-item-card">
+                    <div className="card catalog-item-card flex-fill">
                       <img src={product.images[0]}
                       className="card-img-top img-fluid" alt={product.title} />
                       <div className="card-body">
