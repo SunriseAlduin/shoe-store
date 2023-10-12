@@ -11,7 +11,7 @@ export default function Header() {
   const location = useLocation();
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
-  const { state, dispatch } = useAppContext();
+  const { state } = useAppContext();
   
   
   const toggleFormVisibility = () => {
@@ -24,6 +24,9 @@ export default function Header() {
       submitButtonRef.current.click();
     };
 
+    if(isFormVisible && !searchText){
+      setIsFormVisible(false);
+    }
   };
 
   const isActive = (path) => {
@@ -69,7 +72,10 @@ export default function Header() {
                 <div className='header-controls-pics'>
                   <div data-id='search-expander' className='header-controls-pic header-controls-search' onClick={toggleFormVisibility}></div>
                   <Link to='/cart' className="header-controls-pic header-controls-cart">
-                    <div className="header-controls-cart-full">{state.productsAmount}</div>
+                    {state.productsAmount > 0 ? 
+                      <div className="header-controls-cart-full">{state.productsAmount}</div>
+                      : null
+                    }
                     <div className="header-controls-cart-menu"></div>
                   </Link>
                 </div>
