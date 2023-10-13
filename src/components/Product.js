@@ -10,13 +10,12 @@ export default function Product() {
   const [amount, setAmount] = useState(1);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [errorProduct, setErrorProduct] = useState(null);
-  const { state, dispatch } = useAppContext();
+  const { dispatch } = useAppContext();
 
   useEffect(() => {
     async function fetchProduct() {
       try{
         const response = await axios.get(`http://localhost:7070/api/items/${id}`);
-        console.log(response.data);
         if(response.data.length === 0){
           setLoadingProduct(false);
           setProduct(null);
@@ -54,7 +53,6 @@ export default function Product() {
   };
 
   const addToCartClickHandler = () => {
-    console.log(product, activeSize, amount);
 
     dispatch({
       type: 'ADD_PRODUCT',

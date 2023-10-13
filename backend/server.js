@@ -24,7 +24,7 @@ const randomNumber = (start, stop) => {
 
 const fortune = (ctx, body = null, status = 200) => {
     // Uncomment for delay
-    // const delay = randomNumber(1, 10) * 1000;
+    //const delay = randomNumber(1, 10) * 1000;
     const delay = 0;
     return new Promise((resolve, reject) => {
         setTimeout(() => {

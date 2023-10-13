@@ -42,7 +42,7 @@ export default function Footer() {
             <a className='footer-contacts-email' href='mailto:nikitagudin.ads@gmail.com'>nikitagudin.ads@gmail.com</a>
             <div className='footer-social-links'>
               <div className='footer-social-link footer-social-link-twitter'></div>
-              <div className='footer-social-link footer-social-link-vk'></div>
+              <a href='https://vk.com/ngoodin' target='blank' className='footer-social-link footer-social-link-vk'></a>
             </div>
           </section>
         </div>

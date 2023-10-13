@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 
 function App() {
 
-  const { state, dispatch } = useAppContext();
+  const { dispatch } = useAppContext();
 
   useEffect(() => {
     const savedCartData = localStorage.getItem('cartState');

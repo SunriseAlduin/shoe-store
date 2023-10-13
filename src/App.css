@@ -132,19 +132,19 @@ section {
   animation: spin 2s ease infinite;
 }
 .preloader :first-child {
-  background: #19A68C;
+  background: #141414;
   animation-delay: -1.5s;
 }
 .preloader :nth-child(2) {
-  background: #ff748b;
+  background: #141414;
   animation-delay: -1s;
 }
 .preloader :nth-child(3) {
-  background: #ffb676;
+  background: #141414;
   animation-delay: -0.5s;
 }
 .preloader :last-child {
-  background: #727e86;
+  background: #141414;
 }
 @keyframes spin {
   0%,
@@ -307,6 +307,6 @@ h2, .h2 {
 }
 
 .card-img-top {
-  height: 300px; /* Установите желаемую фиксированную высоту */
+  height: 300px;
   object-fit: cover;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import banner from '../img/banner.jpg'
 import { useAppContext } from './AppContext'
 import { Link } from 'react-router-dom';
@@ -10,6 +10,9 @@ export default function Cart() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [agreement, setAgreement] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [error, setError] = useState(false);
+  const [loader, setLoader] = useState(false)
 
   const isFormValid = phone !== '' && address !== '' && agreement;
 
@@ -29,6 +32,7 @@ export default function Cart() {
     e.preventDefault();
 
     async function postOrder() {
+      setLoader(true)
       const url = 'http://localhost:7070/api/order';
       const requestData = {
         owner: {
@@ -55,10 +59,11 @@ export default function Cart() {
           dispatch({
             type: 'REFRESH_CART'
           });
+          setOrderSuccess(true);
+          setLoader(false)
         }
-        console.log(response);
       } catch(error){
-        console.log(error)
+        setError(error)
       }
     };
 
@@ -170,7 +175,16 @@ export default function Cart() {
           </section>
           : null
           }
-          
+
+          {orderSuccess ? <p>Заказ успешно отправлен!</p> : null}
+          {error ? <p>Error: {error.message}</p> : null}
+          {loader ?  <div className='preloader'>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                      : null }
         </div>
       </div>
     </main>

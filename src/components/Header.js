@@ -40,10 +40,6 @@ export default function Header() {
     navigate(`/catalog?search=${encodeURIComponent(searchText)}`);
   };
 
-  /* Пример реализации добавления активного класса пункту меню
-  className={`navbar-brand ${testMatch ? 'active' : ''}`
-  */
-
   return (
     <header className='container'>
       <div className='row'>

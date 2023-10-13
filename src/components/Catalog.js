@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'   
 import Banner from './Banner'
 import axios from 'axios'
@@ -13,11 +13,7 @@ export default function Catalog() {
   const [moreButtonVisible, setMoreButtonVisible] = useState(true);
   const [formData, setFormData] = useState('');
   const [actualSearch, setActualSearch] = useState('');
-
-  
   const [searchParams, setSearchParams] = useSearchParams();
-  const [loadedProducts, setLoadedProducts] = useState([]);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const [errorCategories, setErrorCategories] = useState(null);
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -34,7 +30,6 @@ export default function Catalog() {
         setActiveCategory(0)
         try{
           const response = await axios.get(`http://localhost:7070/api/items?q=${searchQuery}`);
-          console.log(response.data)
           setProducts(response.data);
 
           if(response.data.length < 6){
@@ -43,7 +38,7 @@ export default function Catalog() {
             setMoreButtonVisible(true)
           };
         } catch(error){
-          console.log('error')
+          console.error(error)
         };
       };
     };
@@ -59,6 +54,7 @@ export default function Catalog() {
           setCategories([]);
         } else {
           setCategories(response.data);
+          setErrorCategories(null);
         }
       } catch(error) {
         setErrorCategories(error);
@@ -75,7 +71,6 @@ export default function Catalog() {
         setActiveCategory(0)
         try{
           const response = await axios.get(`http://localhost:7070/api/items?q=${searchQuery}`);
-          console.log(response.data)
           setProducts(response.data);
 
           if(response.data.length < 6){
@@ -84,7 +79,7 @@ export default function Catalog() {
             setMoreButtonVisible(true)
           };
         } catch(error){
-          console.log('error')
+          console.error(error)
         };
       };
     };
@@ -96,14 +91,13 @@ export default function Catalog() {
 
     async function fetchProducts() {
 
-      let url = `http://localhost:7070/api/items`;
-      // const response = await axios.get(`http://localhost:7070/api/items?categoryId=${categoryId}&offset=${offset}&q=${actualSearch}`)
-
       if(actualSearch === ''){
         if(activeCategory === 0){
           try{
             const response = await axios.get('http://localhost:7070/api/items');
             setProducts(response.data);
+            setLoadingProducts(false);
+            setErrorProducts(null);
 
             if(response.data.length < 6){
               setMoreButtonVisible(false)
@@ -118,13 +112,14 @@ export default function Catalog() {
           try{
             const response = await axios.get(`http://localhost:7070/api/items?categoryId=${activeCategory}`);
             setProducts(response.data);
+            setLoadingProducts(false);
+            setErrorProducts(null);
   
             if(response.data.length < 6){
               setMoreButtonVisible(false)
             } else{
               setMoreButtonVisible(true)
             }
-            console.log(response.data);
           } catch(error){
             setErrorProducts(error);
             setLoadingProducts(false);
@@ -135,6 +130,8 @@ export default function Catalog() {
           try{
             const response = await axios.get(`http://localhost:7070/api/items?q=${actualSearch}`);
             setProducts(response.data);
+            setLoadingProducts(false);
+            setErrorProducts(null);
 
             if(response.data.length < 6){
               setMoreButtonVisible(false)
@@ -149,13 +146,14 @@ export default function Catalog() {
             try{
               const response = await axios.get(`http://localhost:7070/api/items?q=${actualSearch}&categoryId=${activeCategory}`);
               setProducts(response.data);
+              setLoadingProducts(false);
+              setErrorProducts(null);
   
               if(response.data.length < 6){
                 setMoreButtonVisible(false)
               } else{
                 setMoreButtonVisible(true)
               }
-              console.log(response.data);
             } catch(error){
               setErrorProducts(error);
               setLoadingProducts(false);
@@ -169,6 +167,7 @@ export default function Catalog() {
   }, [activeCategory]);
   
   const categoryClickHandler = (categoryId) => {
+    setLoadingProducts(true);
     setActiveCategory(categoryId)
     setOffset(6);
     if(!(products.length < 6)){
@@ -177,6 +176,7 @@ export default function Catalog() {
   };
 
   const moreButtonClickHandler = async () => {
+    setLoadingProducts(true);
     let url;
     if(activeCategory === 0){
       actualSearch === '' ? url = `http://localhost:7070/api/items?offset=${offset}`
@@ -194,9 +194,10 @@ export default function Catalog() {
 
       setOffset((prevOffset) => prevOffset + 6)
       setProducts((prevProducts) => [...prevProducts, ...response.data])      
-
+      setLoadingProducts(false);
+      setErrorProducts(null);
     } catch(error){
-      console.log(error)
+      setErrorProducts(error)
     };  
     
   };
@@ -217,9 +218,8 @@ export default function Catalog() {
         setMoreButtonVisible(true);
       }
       setProducts(response.data);
-      console.log(response)
     } catch(error){
-      console.log(error);
+      console.error(error);
     }
   };
   
@@ -229,16 +229,6 @@ export default function Catalog() {
 
   return (
   <>
-      {/* PRELOADER для категорий поищи другой лодер, может горизонтальный какой-нибудь <section className='catalog'>
-      <h2 className='text-center'>Каталог</h2>
-      <div className='preloader'>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </section> */}
-
     <main className="container">
       <div className="row">
         <div className="col">
@@ -273,6 +263,7 @@ export default function Catalog() {
                  </li> 
                );
               })}
+              {errorCategories ? errorCategories.message : null}
             </ul>
             <div className='row d-flex'>
             {products.map((product) => {
@@ -290,6 +281,14 @@ export default function Catalog() {
                   </div>
                 );
               })}
+              {loadingProducts ?       <div className='preloader'>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                       </div>
+                                      : null }
+              {errorProducts ? errorProducts.message : null}                        
             </div>
             {moreButtonVisible ? (<div className="text-center">
                                      <button className="btn btn-outline-primary" onClick={moreButtonClickHandler}>Загрузить ещё</button>

@@ -42,13 +42,7 @@ const appReducer = (state, action) => {
         localStorage.setItem('cartState', JSON.stringify(updatedState));
         return updatedState;
       };
-
-
-
-
-
-
-
+      
     case 'LOAD_CART_DATA':
       return action.payload;    
 
